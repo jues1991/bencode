@@ -4,43 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bencode {
-	// data type
-	public static enum TYPE {
-		INVALID, STRING, INT, LIST, DICTIONARY,
+	 public static class ObjectRef{
+		public Object obj = new Object();
 	}
 
-	// var
-	TYPE m_type = TYPE.INVALID;
-	Object m_value;
-
-	// type
-	public TYPE type() {
-		return this.m_type;
-	}
-
-	// value
-	public Object value() {
-		return this.m_value;
-	}
 
 	//
-	public static List<Bencode> fromString(String text) {
-		List<Bencode> list = new ArrayList<Bencode>();
+	public static List<Object> fromString(String text) {
+		List<Object> list = new ArrayList<Object>();
 		String content = new String(text);
 		//
 		while (true) {
 			//
-			Bencode code = new Bencode();
+			 ObjectRef data = new ObjectRef();
 			int i;
 			//
-			i = Bencode.fromString(content, code);
-			if (0 >= i || TYPE.INVALID == code.type()) {
+			i = Bencode.fromString(content, data);
+			if (0 >= i || data.obj.getClass().equals(Object.class)  ) {
 				break;
 			}
 			//
-			list.add(code);
-			//
-			i++;
+			list.add(data.obj);
 			//
 			if ( content.length() <= i ) {
 				break;
@@ -53,8 +37,8 @@ public class Bencode {
 	}
 
 	//
-	public static int fromString(String text, Bencode code) {
-		if (0 >= text.length() || null == code) {
+	public static int fromString(String text, ObjectRef data) {
+		if (0 >= text.length() || null == data) {
 			return 0;
 		}
 
@@ -69,7 +53,6 @@ public class Bencode {
 
 		// check is int
 		if ('i' == flag) {
-			code.m_type = TYPE.INT;
 			begin++;
 			end = text.indexOf('e', begin);
 			if (0 >= end) {
@@ -78,19 +61,19 @@ public class Bencode {
 			// get number
 			value = text.substring(begin, end);
 			int i = Integer.parseInt(value);
-			code.m_value = i;
+			data.obj = i;
+			end++;
 		}
 		// check is list
 		else if ('l' == flag) {
-			code.m_type = TYPE.LIST;
+			 
 		}
 		// check is dictionary
 		else if ('d' == flag) {
-			code.m_type = TYPE.DICTIONARY;
+			 
 		}
 		// is string
 		else {
-			code.m_type = TYPE.STRING;
 			end = text.indexOf(':', begin);
 			if (0 >= end) {
 				return (-1);
@@ -104,7 +87,7 @@ public class Bencode {
 			begin = end;
 			end = begin+len;
 			value = text.substring(begin, end);
-			code.m_value = value;
+			data.obj = value;
 		}
 
 		//
