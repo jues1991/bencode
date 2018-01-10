@@ -2,14 +2,28 @@ package pers.jues.code.bencode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
+/*
+ * @author jues
+ * @version 0.0.1
+ * @time 2018-01-09
+ * @see Bencode convert.
+ * */
 public class Bencode {
 	public static class ObjectRef {
 		public Object obj = null;
 	}
 
-	//
+	/*
+	 * @see string to object list.
+	 * 
+	 * @param text: need parse string.
+	 * 
+	 * @return List<Object>.
+	 */
 	public static List<Object> fromString(String text) {
 		List<Object> list = new ArrayList<Object>();
 		String content = new String(text);
@@ -36,7 +50,13 @@ public class Bencode {
 		return list;
 	}
 
-	//
+	/*
+	 * @see string to object.
+	 * 
+	 * @param text: need parse string; data is save object.
+	 * 
+	 * @return int.
+	 */
 	public static int fromString(String text, ObjectRef data) {
 		if (0 >= text.length() || null == data) {
 			return 0;
@@ -110,15 +130,14 @@ public class Bencode {
 				if (null == k.obj) {
 					break;
 				}
-				
+
 				if ((content.length() - 1) <= i) {
 					break;
 				}
 				//
 				content = content.substring(i);
-				
-				// value
 
+				// value
 
 				i = Bencode.fromString(content, v);
 				end += i;
@@ -161,6 +180,80 @@ public class Bencode {
 
 		//
 		return end;
+	}
+
+	/*
+	 * @see list to string.
+	 * 
+	 * @param list: need convert in the object list.
+	 * 
+	 * @return String.
+	 */
+	public static String toString(List<Object> list) {
+		String text = new String();
+		//
+		for (Object obj : list) {
+			String value = Bencode.toString(obj);
+			//
+			text += value;
+		}
+		//
+		return text;
+	}
+
+	/*
+	 * @see object to string.
+	 * 
+	 * @param list: need convert in the object.
+	 * 
+	 * @return String.
+	 */
+	public static String toString(Object obj) {
+		String text = new String();
+		//
+		if (obj instanceof Integer) {
+			// is number
+			int number = (int) obj;
+
+			text = String.format("i%de", number);
+
+		} else if (obj instanceof String) {
+			// is number
+			String str = (String) obj;
+
+			text = String.format("%d:%s", str.length(), str);
+
+		} else if (obj instanceof List) {
+			// is list
+			@SuppressWarnings("unchecked")
+			List<Object> l = (List<Object>) obj;
+			String l_str = Bencode.toString(l);
+
+			text = "l" + l_str + "e";
+
+		} else if (obj instanceof HashMap) {
+			// is dictionary
+			@SuppressWarnings("unchecked")
+			HashMap<Object, Object> d = (HashMap<Object, Object>) obj;
+			String d_str = new String();
+			//
+			Iterator<Entry<Object, Object>> it = d.entrySet().iterator();
+			while (it.hasNext()) {
+				@SuppressWarnings("rawtypes")
+				Entry entry = (Entry) it.next();
+				//
+				d_str += Bencode.toString(entry.getKey());
+				d_str += Bencode.toString(entry.getValue());
+			}
+
+			//
+			text = "d" + d_str + "e";
+
+		} else {
+			text = "";
+		}
+		//
+		return text;
 	}
 
 }
