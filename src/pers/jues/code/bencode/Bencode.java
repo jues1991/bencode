@@ -1,6 +1,7 @@
 package pers.jues.code.bencode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Bencode {
@@ -93,7 +94,48 @@ public class Bencode {
 		}
 		// check is dictionary
 		else if ('d' == flag) {
+			begin++;
+			int i;
+			String content = text.substring(begin);
+			HashMap<Object, Object> list = new HashMap<Object, Object>();
+			end = begin;
+			//
+			while (true) {
+				ObjectRef k = new ObjectRef();
+				ObjectRef v = new ObjectRef();
 
+				// key
+				i = Bencode.fromString(content, k);
+				end += i;
+				if (null == k.obj) {
+					break;
+				}
+				
+				if ((content.length() - 1) <= i) {
+					break;
+				}
+				//
+				content = content.substring(i);
+				
+				// value
+
+
+				i = Bencode.fromString(content, v);
+				end += i;
+				if (null == v.obj) {
+					break;
+				}
+				//
+				list.put(k.obj, v.obj);
+				//
+				if ((content.length() - 1) <= i) {
+					break;
+				}
+				//
+				content = content.substring(i);
+			}
+			//
+			data.obj = list;
 		}
 		// check is end flag
 		else if ('e' == flag) {
