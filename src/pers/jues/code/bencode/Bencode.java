@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bencode {
-	 public static class ObjectRef{
-		public Object obj = new Object();
+	public static class ObjectRef {
+		public Object obj = null;
 	}
-
 
 	//
 	public static List<Object> fromString(String text) {
@@ -16,17 +15,17 @@ public class Bencode {
 		//
 		while (true) {
 			//
-			 ObjectRef data = new ObjectRef();
+			ObjectRef data = new ObjectRef();
 			int i;
 			//
 			i = Bencode.fromString(content, data);
-			if (0 >= i || data.obj.getClass().equals(Object.class)  ) {
+			if (null == data.obj) {
 				break;
 			}
 			//
 			list.add(data.obj);
 			//
-			if ( content.length() <= i ) {
+			if (content.length() <= i) {
 				break;
 			}
 			//
@@ -56,7 +55,7 @@ public class Bencode {
 			begin++;
 			end = text.indexOf('e', begin);
 			if (0 >= end) {
-				return (-1);
+				return 0;
 			}
 			// get number
 			value = text.substring(begin, end);
@@ -66,26 +65,54 @@ public class Bencode {
 		}
 		// check is list
 		else if ('l' == flag) {
-			 
+			begin++;
+			int i;
+			String content = text.substring(begin);
+			List<Object> list = new ArrayList<Object>();
+			end = begin;
+			//
+			while (true) {
+				ObjectRef l = new ObjectRef();
+				//
+				i = Bencode.fromString(content, l);
+				end += i;
+				if (null == l.obj) {
+					break;
+				}
+				//
+				list.add(l.obj);
+				//
+				if ((content.length() - 1) <= i) {
+					break;
+				}
+				//
+				content = content.substring(i);
+			}
+			//
+			data.obj = list;
 		}
 		// check is dictionary
 		else if ('d' == flag) {
-			 
+
+		}
+		// check is end flag
+		else if ('e' == flag) {
+			return 1;
 		}
 		// is string
 		else {
 			end = text.indexOf(':', begin);
 			if (0 >= end) {
-				return (-1);
+				return 0;
 			}
 			// get string len
 			value = text.substring(begin, end);
 			int len = Integer.parseInt(value);
-			
+
 			// get string value
 			end++;
 			begin = end;
-			end = begin+len;
+			end = begin + len;
 			value = text.substring(begin, end);
 			data.obj = value;
 		}
