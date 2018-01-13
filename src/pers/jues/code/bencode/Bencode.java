@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import pers.jues.data.byteBuffer;
+
 /*
  * @author jues
  * @version 0.0.1
@@ -254,6 +256,175 @@ public class Bencode {
 		}
 		//
 		return text;
+	}
+
+	/*
+	 * @see byte[] to object list.
+	 * 
+	 * @param buf: need parse byte[].
+	 * 
+	 * @return List<Object>.
+	 */
+	public static List<Object> fromByte(byte[] buf) {
+		List<Object> list = new ArrayList<Object>();
+		byteBuffer buff = new byteBuffer(buf);
+		//
+		while (true) {
+			//
+			ObjectRef data = new ObjectRef();
+			int i;
+			//
+			i = Bencode.fromByte(buff, data);
+			if (null == data.obj) {
+				break;
+			}
+			//
+			list.add(data.obj);
+			//
+			if (buff.length() <= i) {
+				break;
+			}
+			//
+			buff = buff.subBuff(i);
+		}
+		//
+		return list;
+	}
+
+
+
+	/*
+	 * @see string to object.
+	 * 
+	 * @param text: need parse string; data is save object.
+	 * 
+	 * @return int.
+	 */
+	public static int fromByte(byteBuffer buff, ObjectRef data) {
+		if (0 >= buff.length() || null == data) {
+			return 0;
+		}
+
+		//
+		int begin, end;
+		byte flag = buff.at(0);
+		byteBuffer value;
+
+		// init
+		begin = 0;
+		end = 0;
+
+		// check is int
+		if ((byte)'i' == flag) {
+			begin++;
+			end = buff.indexOf((byte)'e', begin);
+			if (0 >= end) {
+				return 0;
+			}
+			// get number
+			String d;
+			//
+			value = buff.subBuff(begin, end);
+			int i = value.toInt();
+			data.obj = i;
+			end++;
+		}
+		// check is list
+		else if ('l' == flag) {
+			begin++;
+			int i;
+			byteBuffer content = buff.subBuff(begin);
+			List<Object> list = new ArrayList<Object>();
+			end = begin;
+			//
+			while (true) {
+				ObjectRef l = new ObjectRef();
+				//
+				i = Bencode.fromByte(content, l);
+				end += i;
+				if (null == l.obj) {
+					break;
+				}
+				//
+				list.add(l.obj);
+				//
+				if ((content.length() - 1) <= i) {
+					break;
+				}
+				//
+				content = content.subBuff(i);
+			}
+			//
+			data.obj = list;
+		}
+		// check is dictionary
+		else if ('d' == flag) {
+			begin++;
+			int i;
+			byteBuffer content = buff.subBuff(begin);
+			HashMap<Object, Object> list = new HashMap<Object, Object>();
+			end = begin;
+			//
+			while (true) {
+				ObjectRef k = new ObjectRef();
+				ObjectRef v = new ObjectRef();
+
+				// key
+				i = Bencode.fromByte(content, k);
+				end += i;
+				if (null == k.obj) {
+					break;
+				}
+
+				if ((content.length() - 1) <= i) {
+					break;
+				}
+				//
+				content = content.subBuff(i);
+
+				// value
+
+				i = Bencode.fromByte(content, v);
+				end += i;
+				if (null == v.obj) {
+					break;
+				}
+				//
+				list.put(k.obj, v.obj);
+				//
+				if ((content.length() - 1) <= i) {
+					break;
+				}
+				//
+				content = content.subBuff(i);
+			}
+			//
+			data.obj = list;
+		}
+		// check is end flag
+		else if ('e' == flag) {
+			return 1;
+		}
+		// is string
+		else {
+			end = buff.indexOf((byte)':', begin);
+			if (0 >= end) {
+				return 0;
+			}
+			// get string len
+			value = buff.subBuff(begin, end);
+			int len = value.toInt();
+
+			// get string value
+			end++;
+			begin = end;
+			end = begin + len;
+			value = buff.subBuff(begin, end);
+			data.obj = value;
+		}
+
+		//
+		return end;
 	}
 
 }
