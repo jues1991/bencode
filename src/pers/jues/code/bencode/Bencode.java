@@ -420,7 +420,7 @@ public class Bencode {
 			begin = end;
 			end = begin + len;
 			value = buff.subBuff(begin, end);
-			data.obj = value;
+			data.obj = value.value();
 		}
 
 		//

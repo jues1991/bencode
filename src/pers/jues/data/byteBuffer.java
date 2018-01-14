@@ -145,6 +145,28 @@ public class byteBuffer {
 	}
 
 	/*
+	 * @see convert to Byte[].
+	 * 
+	 * @param .
+	 * 
+	 * @return Byte[]:.
+	 */
+	public Byte[] toByte() {
+		int length = this.length();
+		//
+		if (0 >= length) { 
+			return null;
+		}
+		//
+		Byte[] arry = new Byte[length];
+		for (int i = 0; length > i; i++) {
+			arry[i] = this.m_buf[i];
+		}
+		//
+		return arry;
+	}
+
+	/*
 	 * @see get length.
 	 * 
 	 * @param beginIndex: index for begin;
@@ -162,8 +184,8 @@ public class byteBuffer {
 		//
 		byte[] buf = new byte[size];
 		//
-		for (int i = beginIndex; size > i; i++) {
-			buf[i] = this.m_buf[i];
+		for (int i = 0; size > i; i++) {
+			buf[i] = this.m_buf[beginIndex + i];
 		}
 		//
 		buff.fromByte(buf);
