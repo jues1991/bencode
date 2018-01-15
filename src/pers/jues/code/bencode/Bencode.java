@@ -296,7 +296,7 @@ public class Bencode {
 	/*
 	 * @see string to object.
 	 * 
-	 * @param text: need parse string; data is save object.
+	 * @param buff: need parse byte[]; data is save object.
 	 * 
 	 * @return int.
 	 */
@@ -426,5 +426,97 @@ public class Bencode {
 		//
 		return end;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
+	 * @see list to byte[].
+	 * 
+	 * @param list: need convert in the object list.
+	 * 
+	 * @return byte[].
+	 */
+	public static byte[] toByte(List<Object> list) {
+		byteBuffer buff = new byteBuffer();
+		//
+		for (Object obj : list) {
+			byteBuffer value = Bencode.toByte(obj);
+			//
+			buff.add(value);
+		}
+		//
+		return buff.value();
+	}
+
+	/*
+	 * @see object to string.
+	 * 
+	 * @param list: need convert in the object.
+	 * 
+	 * @return byteBuffer.
+	 */
+	public static byteBuffer toByte(Object obj) {
+		byteBuffer buff = new byteBuffer();
+		//
+		if (obj instanceof Integer) {
+			// is number
+			int number = (int) obj;
+
+			buff.add((byte)'i');	
+			buff.add(number);
+			buff.add((byte)'e');	
+
+		} else if (obj instanceof byte[]) {
+			// is number
+			byte[] buf = (byte[]) obj;
+
+			buff.add(buf.length);
+			buff.add((byte)':');
+			buff.add(buf);
+			
+
+		} else if (obj instanceof List) {
+			// is list
+			@SuppressWarnings("unchecked")
+			List<Object> l = (List<Object>) obj;
+			byte[] buf = Bencode.toByte(l);
+
+			buff.add((byte)'l');	
+			buff.add(buf);
+			buff.add((byte)'e');	
+
+		} else if (obj instanceof HashMap) {
+			// is dictionary
+			@SuppressWarnings("unchecked")
+			HashMap<Object, Object> d = (HashMap<Object, Object>) obj;
+			byteBuffer value = new byteBuffer();
+			//
+			Iterator<Entry<Object, Object>> it = d.entrySet().iterator();
+			while (it.hasNext()) {
+				@SuppressWarnings("rawtypes")
+				Entry entry = (Entry) it.next();
+				//
+				value.add(Bencode.toByte(entry.getKey()));
+				value.add(Bencode.toByte(entry.getValue()));
+			}
+
+			//
+			buff.add((byte)'d');	
+			buff.add(value);
+			buff.add((byte)'e');	
+
+		} else {
+			buff = null;
+		}
+		//
+		return buff;
+	}
+	
 
 }

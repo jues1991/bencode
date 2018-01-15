@@ -83,6 +83,73 @@ public class byteBuffer {
 	}
 
 	/*
+	 * @see add byte.
+	 * 
+	 * @param buff: buff;
+	 * 
+	 * @return int: byte[] length.
+	 */
+	public int add(byteBuffer buff) {
+		int length_new = buff.length();
+		if (0 >= length_new) {
+			return this.length();
+		}
+		//
+		int length_old = this.length();
+		this.resize(length_old + length_new);
+		for (int i = 0; length_new > i; i++) {
+			this.m_buf[i + length_old] = buff.m_buf[i];
+		}
+
+		//
+		return this.length();
+	}
+
+	/*
+	 * @see add byte.
+	 * 
+	 * @param buf: byte[];
+	 * 
+	 * @return int: byte[] length.
+	 */
+	public int add(byte[] buf) {
+		return this.add(new byteBuffer(buf));
+	}
+
+	/*
+	 * @see add byte.
+	 * 
+	 * @param b: byte;
+	 * 
+	 * @return int: byte[] length.
+	 */
+	public int add(byte b) {
+		byte[] buf = new byte[1];
+		//
+		buf[0] = b;
+		return this.add(new byteBuffer(buf));
+	}
+
+	
+	/*
+	 * @see add number.
+	 * 
+	 * @param number: int;
+	 * 
+	 * @return int: byte[] length.
+	 */
+	public int add(int number) {
+		String text = String.format("%d", number);
+		//
+		byte[] buf = new byte[text.length()];
+		for ( int i = 0;buf.length>i;i++ ) {
+			buf[i] = (byte)text.charAt(i);
+		}
+		//
+		return this.add(buf);
+	}
+
+	/*
 	 * @see value to byte[].
 	 * 
 	 * @param .
@@ -154,7 +221,7 @@ public class byteBuffer {
 	public Byte[] toByte() {
 		int length = this.length();
 		//
-		if (0 >= length) { 
+		if (0 >= length) {
 			return null;
 		}
 		//
