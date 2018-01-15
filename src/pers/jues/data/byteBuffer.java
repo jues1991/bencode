@@ -2,7 +2,6 @@ package pers.jues.data;
 
 public class byteBuffer {
 	byte[] m_buf = null;
-	private Class<Byte> ArrayList;
 
 	/*
 	 * @see byteBuffer.

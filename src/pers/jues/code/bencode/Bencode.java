@@ -321,8 +321,6 @@ public class Bencode {
 			if (0 >= end) {
 				return 0;
 			}
-			// get number
-			String d;
 			//
 			value = buff.subBuff(begin, end);
 			int i = value.toInt();
